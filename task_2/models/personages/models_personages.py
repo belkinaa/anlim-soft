@@ -6,7 +6,6 @@ import random
 class Personage(ABC):
     name: str
 
-
     @abstractmethod
     def description_attack(self, text_atack):
         pass
@@ -31,6 +30,7 @@ class Superhero(Personage):
 
     def speek(self, text_speek):
         print(f'{self.name} произносит:\n - {text_speek}! - и с улыбкой подмигивает.')
+
 @dataclass
 class Antagonist(Personage):
     tuple_atack_cities: tuple
