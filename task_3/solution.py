@@ -26,6 +26,7 @@ class Team():
     position: int = field(init=False, default=0)
     list_win_team: list = field(init=False, default_factory=list)
     list_loose_team: list = field(init=False, default_factory=list)
+    rating: int = field(init=False, default=0)
 
     def __post_init__(self):
         [self.list_competitors.append(Competitor(f'Competitor #{_}', self.name)) for _ in range(1, self.count_competitor + 1)]
@@ -47,10 +48,33 @@ class Sport_game():
         self.created_groups()
         self.game_groups()
 
+        list_groups_teams = []
+        for group in self.list_groups_teams:
+            for team in group.list_teams:
+                if team.position < 4:
+                    list_groups_teams.append(team)
+
+        list_groups_teams = sorted(list_groups_teams, key=lambda value: value.position)
+        for i in range(0, len(list_groups_teams), 2):
+            print(f'+--')
+            print(list_groups_teams[i])
+            if i+1 == len(list_groups_teams):
+                break
+            print(list_groups_teams[i+1])
+
+
+
     def set_position_team_group(self, group, position: list) -> None:
-        """Устанавливает места командам в группе"""
+        """Устанавливает места командам в группе
+        Устанавливает рейтинг"""
         for team in group.list_teams:
             team.position = position.index(team) + 1
+
+            team.rating = {
+                1: 100,
+                2: 75,
+                3: 50
+            }.get(team.position, 0)
             print('team:', team)
 
     def form_list_position_team(self, team, position: list) -> list:
@@ -77,7 +101,8 @@ class Sport_game():
 
     def counting_point(self):
         """* Подсчет количества очков у команд в группах.
-        * Распределение мест"""
+        * Распределение мест
+        * устанавливается рейтинг"""
         for group in self.list_groups_teams:
             print('----')
             position = []
@@ -85,7 +110,6 @@ class Sport_game():
                 team.point = len(team.list_win_team)
                 self.form_list_position_team(team, position)
             self.set_position_team_group(group, position)
-
 
     def game_groups(self):
         for group in self.list_groups_teams:
@@ -102,8 +126,6 @@ class Sport_game():
                     # print(f'ИТОГ: {team1} VS {team2}')
         self.counting_point()
 
-
-
     def created_groups(self):
         number_group = 0
         while len(self.list_teams) > 0:
@@ -119,7 +141,19 @@ class Sport_game():
     def __post_init__(self):
         self.registration_commands()
 
+    def round2(self, list_groups_teams):
+        map_round = {}
+        for team in list_groups_teams:
+            if team.position not in map_round:
+                map_round[team.position] = [team]
+            else:
+                map_round[team.position].append(team)
+
+        for k, v in map_round.items():
+            print(k, v)
 
 
-sport_game = Sport_game('Sample_game_name', 10, 4, 1)
+
+
+sport_game = Sport_game('Sample_game_name', 11, 4, 1)
 sport_game.round()
