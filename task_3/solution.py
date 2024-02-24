@@ -47,12 +47,44 @@ class Sport_game():
         self.created_groups()
         self.game_groups()
 
+    def set_position_team_group(self, group, position: list) -> None:
+        """Устанавливает места командам в группе"""
+        for team in group.list_teams:
+            team.position = position.index(team) + 1
+            print('team:', team)
+
+    def form_list_position_team(self, team, position: list) -> list:
+        """Формируется список мест команд на основе "point" и их игр между собой"""
+        if position:
+            for ind, position_team in enumerate(position):
+                if team.point < position_team.point:
+                    continue
+                elif team.point > position_team.point:
+                    position.insert(ind, team)
+                    break
+                else:
+                    if team.name in position_team.list_win_team:
+                        position.insert(ind + 1, team)
+                        break
+                    else:
+                        position.insert(ind, team)
+                        break
+            else:
+                position.append(team)
+        else:
+            position.append(team)
+        return position
 
     def counting_point(self):
+        """* Подсчет количества очков у команд в группах.
+        * Распределение мест"""
         for group in self.list_groups_teams:
+            print('----')
+            position = []
             for team in group.list_teams:
                 team.point = len(team.list_win_team)
-                print('team:', team)
+                self.form_list_position_team(team, position)
+            self.set_position_team_group(group, position)
 
 
     def game_groups(self):
@@ -67,18 +99,15 @@ class Sport_game():
                     else:
                         team2.list_win_team.append(team1.name)
                         team1.list_loose_team.append(team2.name)
-                    print(f'ИТОГ: {team1} VS {team2}')
-        print('----')
+                    # print(f'ИТОГ: {team1} VS {team2}')
         self.counting_point()
 
 
 
     def created_groups(self):
         number_group = 0
-
         while len(self.list_teams) > 0:
             number_group += 1
-
             group = Group(f'#{number_group}')
             for _ in range(self.count_teams_in_group):
                 group.list_teams.append((random_team := random.choice(self.list_teams)))
